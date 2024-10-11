@@ -32,8 +32,6 @@ jobs:
     needs: build
     runs-on: self-hosted
     steps:
-      - name: Add user to docker group
-        run: sudo usermod -aG docker $(whoami)
       - name: Pull image from docker hub
         run: docker pull eliasfernandescout/paymentgateway:latest
       - name: Remove docker container
