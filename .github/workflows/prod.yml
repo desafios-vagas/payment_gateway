@@ -1,4 +1,4 @@
-name: Deploy Payment Gateway
+name: Deploy Application Paymentgateway
 
 on:
   push:
@@ -32,12 +32,11 @@ jobs:
     needs: build
     runs-on: self-hosted
     steps:
+      - name: Add user to docker group
+        run: sudo usermod -aG docker $(whoami)
       - name: Pull image from docker hub
         run: docker pull eliasfernandescout/paymentgateway:latest
-        shell: bash
       - name: Remove docker container
         run: docker rm -f paymentgateway
-        shell: bash
       - name: Run docker container
         run: docker run -d -p 8080:8080 --name paymentgateway eliasfernandescout/paymentgateway
-        shell: bash
