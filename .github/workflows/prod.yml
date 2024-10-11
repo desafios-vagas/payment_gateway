@@ -1,0 +1,44 @@
+name: Deploy Payment Gateway
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Build project
+        run: mvn clean install -DskipTests
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build docker image
+        run: docker build -t eliasfernandescout/paymentgateway .
+      - name: Push image docker
+        run: docker push eliasfernandescout/paymentgateway
+
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Add user to docker group
+        run: sudo usermod -aG docker $(whoami)
+      - name: Pull image from docker hub
+        run: docker pull eliasfernandescout/paymentgateway:latest
+      - name: Remove docker container
+        run: docker rm -f paymentgateway
+      - name: Run docker container
+        run: docker run -d -p 8080:8080 --name paymentgateway eliasfernandescout/paymentgateway
+      - name: Remove docker image
+        run: docker rmi eliasfernandescout/paymentgateway:latest
