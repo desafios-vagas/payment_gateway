@@ -38,3 +38,5 @@ jobs:
         run: docker rm -f paymentgateway
       - name: Run docker container
         run: docker run -d -p 8080:8080 --name paymentgateway eliasfernandescout/paymentgateway
+      - name: Remove old docker images
+        run: docker image prune -f
